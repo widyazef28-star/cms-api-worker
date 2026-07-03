@@ -4,21 +4,20 @@ export default {
     const headers = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Content-Type": "application/json"
     };
 
     // CORS
     if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers
-      });
+      return new Response(null, { headers });
     }
 
     const url = new URL(request.url);
-    return Response.json({
-  pathname: url.pathname,
-  method: request.method
-});
+
+    // Debug log
+    console.log("Method:", request.method);
+    console.log("Path:", url.pathname);
 
     // ===========================
     // HOME
@@ -28,9 +27,7 @@ export default {
       return Response.json({
         success: true,
         message: "Daily Delish API Running 🚀"
-      }, {
-        headers
-      });
+      }, { headers });
 
     }
 
@@ -53,13 +50,12 @@ export default {
           });
         }
 
-        // Cek email
-        const user = await env.DB
+        const existingUser = await env.DB
           .prepare("SELECT * FROM users WHERE email = ?")
           .bind(email)
           .first();
 
-        if (user) {
+        if (existingUser) {
           return Response.json({
             success: false,
             message: "Email sudah digunakan"
@@ -69,7 +65,6 @@ export default {
           });
         }
 
-        // Simpan user
         await env.DB
           .prepare(
             "INSERT INTO users (name, email, password) VALUES (?, ?, ?)"
@@ -80,9 +75,7 @@ export default {
         return Response.json({
           success: true,
           message: "Register berhasil"
-        }, {
-          headers
-        });
+        }, { headers });
 
       } catch (err) {
 
