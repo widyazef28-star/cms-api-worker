@@ -8,14 +8,15 @@ export default {
       "Content-Type": "application/json"
     };
 
+    // ===========================
     // CORS
+    // ===========================
     if (request.method === "OPTIONS") {
       return new Response(null, { headers });
     }
 
     const url = new URL(request.url);
 
-    // Debug log
     console.log("Method:", request.method);
     console.log("Path:", url.pathname);
 
@@ -23,12 +24,20 @@ export default {
     // HOME
     // ===========================
     if (url.pathname === "/" && request.method === "GET") {
-
       return Response.json({
         success: true,
         message: "Daily Delish API Running 🚀"
       }, { headers });
+    }
 
+    // ===========================
+    // TEST
+    // ===========================
+    if (url.pathname === "/test" && request.method === "GET") {
+      return Response.json({
+        success: true,
+        message: "TEST BERHASIL"
+      }, { headers });
     }
 
     // ===========================
@@ -38,7 +47,9 @@ export default {
 
       try {
 
-        const { name, email, password } = await request.json();
+        const body = await request.json();
+
+        const { name, email, password } = body;
 
         if (!name || !email || !password) {
           return Response.json({
@@ -50,6 +61,7 @@ export default {
           });
         }
 
+        // Cek email
         const existingUser = await env.DB
           .prepare("SELECT * FROM users WHERE email = ?")
           .bind(email)
@@ -65,6 +77,7 @@ export default {
           });
         }
 
+        // Simpan user
         await env.DB
           .prepare(
             "INSERT INTO users (name, email, password) VALUES (?, ?, ?)"
