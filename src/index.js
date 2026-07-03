@@ -15,6 +15,10 @@ export default {
     }
 
     const url = new URL(request.url);
+    return Response.json({
+  pathname: url.pathname,
+  method: request.method
+});
 
     // ===========================
     // HOME
