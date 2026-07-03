@@ -103,7 +103,63 @@ export default {
       }
 
     }
+// ===========================
+// LOGIN
+// ===========================
+if (url.pathname === "/login" && request.method === "POST") {
 
+  try {
+
+    const { email, password } = await request.json();
+
+    if (!email || !password) {
+      return Response.json({
+        success: false,
+        message: "Email dan password wajib diisi"
+      }, {
+        status: 400,
+        headers
+      });
+    }
+
+    const user = await env.DB
+      .prepare(
+        "SELECT id, name, email FROM users WHERE email = ? AND password = ?"
+      )
+      .bind(email, password)
+      .first();
+
+    if (!user) {
+      return Response.json({
+        success: false,
+        message: "Email atau password salah"
+      }, {
+        status: 401,
+        headers
+      });
+    }
+
+    return Response.json({
+      success: true,
+      message: "Login berhasil",
+      user
+    }, {
+      headers
+    });
+
+  } catch (err) {
+
+    return Response.json({
+      success: false,
+      message: err.message
+    }, {
+      status: 500,
+      headers
+    });
+
+  }
+
+}
     // ===========================
     // 404
     // ===========================
