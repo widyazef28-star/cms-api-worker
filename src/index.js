@@ -394,32 +394,54 @@ export default {
       }
 
     }
+    // ===========================
+// GET RECIPE BY ID
 // ===========================
-// RECIPE DETAIL
-// ===========================
-if (url.pathname === "/recipe-detail" && request.method === "GET") {
+if (
+  url.pathname.startsWith("/recipes/") &&
+  request.method === "GET"
+) {
 
-  const id = url.searchParams.get("id");
+  try {
 
-  const recipe = await env.DB
-    .prepare("SELECT * FROM recipes WHERE id = ?")
-    .bind(id)
-    .first();
+    const id = url.pathname.split("/")[2];
 
-  if (!recipe) {
+    const recipe = await env.DB
+      .prepare("SELECT * FROM recipes WHERE id = ?")
+      .bind(id)
+      .first();
+
+    if (!recipe) {
+
+      return Response.json({
+        success: false,
+        message: "Recipe tidak ditemukan"
+      }, {
+        status: 404,
+        headers
+      });
+
+    }
+
     return Response.json({
-      success: false,
-      message: "Recipe tidak ditemukan"
+      success: true,
+      data: recipe
     }, {
-      status: 404,
       headers
     });
+
+  } catch (err) {
+
+    return Response.json({
+      success: false,
+      message: err.message
+    }, {
+      status: 500,
+      headers
+    });
+
   }
 
-  return Response.json({
-    success: true,
-    data: recipe
-  }, { headers });
 }
     // ===========================
     // 404
