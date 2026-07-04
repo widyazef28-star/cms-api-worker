@@ -8,7 +8,7 @@ export default {
       "Content-Type": "application/json"
     };
 
-    // ===========================
+    // ==========================
     // CORS
     // ===========================
     if (request.method === "OPTIONS") {
