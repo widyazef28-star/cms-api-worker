@@ -162,6 +162,38 @@ if (url.pathname === "/login" && request.method === "POST") {
 }
 
     // ===========================
+// GET ALL RECIPES
+// ===========================
+if (url.pathname === "/recipes" && request.method === "GET") {
+
+  try {
+
+    const { results } = await env.DB
+      .prepare("SELECT * FROM recipes ORDER BY created_at DESC")
+      .all();
+
+    return Response.json({
+      success: true,
+      data: results
+    }, {
+      headers
+    });
+
+  } catch (err) {
+
+    return Response.json({
+      success: false,
+      message: err.message
+    }, {
+      status: 500,
+      headers
+    });
+
+  }
+
+}
+
+    // ===========================
     // 404
     // ===========================
     return Response.json({
