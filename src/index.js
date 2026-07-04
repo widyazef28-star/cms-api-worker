@@ -443,6 +443,193 @@ if (
   }
 
 }
+
+    // ===========================
+// GET PROFILE
+// ===========================
+if (
+  url.pathname.startsWith("/profile/") &&
+  request.method === "GET"
+) {
+
+  try {
+
+    const id = url.pathname.split("/")[2];
+
+    const user = await env.DB
+      .prepare(`
+        SELECT
+          id,
+          name,
+          email,
+          photo
+        FROM users
+        WHERE id = ?
+      `)
+      .bind(id)
+      .first();
+
+    if (!user) {
+
+      return Response.json({
+        success: false,
+        message: "User tidak ditemukan"
+      }, {
+        status: 404,
+        headers
+      });
+
+    }
+
+    return Response.json({
+      success: true,
+      user
+    }, {
+      headers
+    });
+
+  } catch (err) {
+
+    return Response.json({
+      success: false,
+      message: err.message
+    }, {
+      status: 500,
+      headers
+    });
+
+  }
+
+}
+
+    // ===========================
+// UPDATE PROFILE
+// ===========================
+if (
+  url.pathname === "/profile" &&
+  request.method === "PUT"
+) {
+
+  try {
+
+    const {
+      id,
+      name,
+      email,
+      password,
+      photo
+    } = await request.json();
+
+    if (password && password !== "") {
+
+      await env.DB
+        .prepare(`
+          UPDATE users
+          SET
+            name = ?,
+            email = ?,
+            password = ?,
+            photo = ?
+          WHERE id = ?
+        `)
+        .bind(
+          name,
+          email,
+          password,
+          photo,
+          id
+        )
+        .run();
+
+    } else {
+
+      await env.DB
+        .prepare(`
+          UPDATE users
+          SET
+            name = ?,
+            email = ?,
+            photo = ?
+          WHERE id = ?
+        `)
+        .bind(
+          name,
+          email,
+          photo,
+          id
+        )
+        .run();
+
+    }
+
+    return Response.json({
+      success: true,
+      message: "Profile berhasil diperbarui"
+    }, {
+      headers
+    });
+
+  } catch (err) {
+
+    return Response.json({
+      success: false,
+      message: err.message
+    }, {
+      status: 500,
+      headers
+    });
+
+  }
+
+}
+
+          // ===========================
+// DELETE USER
+// ===========================
+if (
+  url.pathname.startsWith("/users/") &&
+  request.method === "DELETE"
+) {
+
+  try {
+
+    const id = url.pathname.split("/")[2];
+
+    // Hapus semua resep milik user
+    await env.DB
+      .prepare("DELETE FROM recipes WHERE user_id = ?")
+      .bind(id)
+      .run();
+
+    // Hapus akun
+    await env.DB
+      .prepare("DELETE FROM users WHERE id = ?")
+      .bind(id)
+      .run();
+
+    return Response.json({
+      success: true,
+      message: "Akun berhasil dihapus"
+    }, {
+      headers
+    });
+
+  } catch (err) {
+
+    return Response.json({
+      success: false,
+      message: err.message
+    }, {
+      status: 500,
+      headers
+    });
+
+  }
+
+}
+
+      
+    
     // ===========================
     // 404
     // ===========================
