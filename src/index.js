@@ -179,9 +179,28 @@ export default {
 
       try {
 
-        const { results } = await env.DB
-          .prepare("SELECT * FROM recipes ORDER BY id DESC")
-          .all();
+        const userId = url.searchParams.get("user_id");
+
+let query = "SELECT * FROM recipes";
+let stmt;
+
+if (userId) {
+
+  query += " WHERE user_id = ? ORDER BY id DESC";
+
+  stmt = env.DB
+    .prepare(query)
+    .bind(userId);
+
+} else {
+
+  query += " ORDER BY id DESC";
+
+  stmt = env.DB.prepare(query);
+
+}
+
+const { results } = await stmt.all();
 
         return Response.json({
           success: true,
