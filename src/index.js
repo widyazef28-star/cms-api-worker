@@ -193,6 +193,81 @@ if (url.pathname === "/recipes" && request.method === "GET") {
 
 }
 
+// ===========================
+// CREATE RECIPE
+// ===========================
+if (url.pathname === "/recipes" && request.method === "POST") {
+
+  try {
+
+    const {
+      user_id,
+      title,
+      category,
+      time,
+      image,
+      description,
+      ingredients,
+      steps
+    } = await request.json();
+
+    if (!title || !category) {
+      return Response.json({
+        success: false,
+        message: "Title dan category wajib diisi"
+      }, {
+        status: 400,
+        headers
+      });
+    }
+
+    await env.DB
+      .prepare(`
+        INSERT INTO recipes
+        (
+          user_id,
+          title,
+          category,
+          time,
+          image,
+          description,
+          ingredients,
+          steps
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `)
+      .bind(
+        user_id,
+        title,
+        category,
+        time,
+        image,
+        description,
+        ingredients,
+        steps
+      )
+      .run();
+
+    return Response.json({
+      success: true,
+      message: "Resep berhasil ditambahkan"
+    }, {
+      headers
+    });
+
+  } catch (err) {
+
+    return Response.json({
+      success: false,
+      message: err.message
+    }, {
+      status: 500,
+      headers
+    });
+
+  }
+
+}
     // ===========================
     // 404
     // ===========================
