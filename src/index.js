@@ -133,7 +133,7 @@ export default {
 
         const user = await env.DB
           .prepare(
-            "SELECT id, name, email FROM users WHERE email = ? AND password = ?"
+            "SELECT id, name, email, photo FROM users WHERE email = ? AND password = ?"
           )
           .bind(email, password)
           .first();
