@@ -394,7 +394,33 @@ export default {
       }
 
     }
+// ===========================
+// RECIPE DETAIL
+// ===========================
+if (url.pathname === "/recipe-detail" && request.method === "GET") {
 
+  const id = url.searchParams.get("id");
+
+  const recipe = await env.DB
+    .prepare("SELECT * FROM recipes WHERE id = ?")
+    .bind(id)
+    .first();
+
+  if (!recipe) {
+    return Response.json({
+      success: false,
+      message: "Recipe tidak ditemukan"
+    }, {
+      status: 404,
+      headers
+    });
+  }
+
+  return Response.json({
+    success: true,
+    data: recipe
+  }, { headers });
+}
     // ===========================
     // 404
     // ===========================
